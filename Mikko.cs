@@ -29,9 +29,9 @@ namespace GuP {
             get {
                 #if UNITY_EDITOR || UNITY_STANDALONE
                 return new MouseTouch(deltaPosition);
-                #elif UNITY_IOS
+                #elif UNITY_IOS || UNITY_ANDROID
                 var t = Input.touchCount == 0 ? new Touch() : Input.GetTouch(0);
-                return new iOSTouch(t);
+                return new SmartPhoneTouch(t);
                 #endif
                 return null;
             }

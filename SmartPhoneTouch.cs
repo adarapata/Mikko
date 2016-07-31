@@ -3,7 +3,7 @@ using System.Collections;
 using GuP;
 
 namespace GuP {
-    public class iOSTouch : ITouch {
+    public class SmartPhoneTouch : ITouch {
         private Touch touch;
 
         public Vector2 position {
@@ -23,7 +23,7 @@ namespace GuP {
             private set;
         }
 
-        public iOSTouch(Touch t){
+        public SmartPhoneTouch(Touch t){
             touch = t;
             info = t.tapCount == 0 ? TouchInfo.None : touch.phase.ToTouchInfo();
         }
