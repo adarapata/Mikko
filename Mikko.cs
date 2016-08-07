@@ -5,7 +5,7 @@ using UniRx.Triggers;
 using System.Linq;
 
 namespace GuP {
-    public class Mikko : MonoBehaviour {
+    public partial class Mikko : MonoBehaviour {
         private static Mikko instance;
         public static Mikko input {
             get {
