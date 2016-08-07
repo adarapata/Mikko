@@ -5,7 +5,7 @@ using UniRx.Triggers;
 using System.Linq;
 
 namespace GuP {
-    public class Mikko : MonoBehaviour {
+    public partial class Mikko : MonoBehaviour {
         private static Mikko instance;
         public static Mikko input {
             get {
@@ -13,9 +13,11 @@ namespace GuP {
                 {
                     instance = FindObjectOfType<Mikko>();
                     if(instance == null) {
+                        var config = Resources.Load("MikkoConfig") as MikkoConfig;
                         var obj = new GameObject("Mikko",typeof(Mikko));
                         DontDestroyOnLoad(obj);
                         instance = obj.GetComponent<Mikko>();
+                        instance.config = config;
                     }
                 }
                 return instance;
@@ -24,6 +26,11 @@ namespace GuP {
         #if UNITY_EDITOR || UNITY_STANDALONE
         private Vector2 deltaPosition;
         #endif
+
+        private Subject<ITouch> onTapStream = new Subject<ITouch>();
+        public IObservable<ITouch> onTapAsObservable { get { return onTapStream.AsObservable(); } }
+
+        public MikkoConfig config;
 
         public ITouch touch {
             get {
@@ -45,6 +52,26 @@ namespace GuP {
                 .Select(mousePosition => mousePosition.Last() - mousePosition.First())
                 .Subscribe(pos => deltaPosition = pos);
             #endif
+
+            this.UpdateAsObservable()
+                .Where(_ => touch.info == TouchInfo.Began)
+                .Subscribe(_ => {
+                    TouchEndAdObservable()
+                        .Where(t => t < config.tapInterval)
+                        .Subscribe(t => {
+                            onTapStream.OnNext(touch);
+                        });              
+                });
+
+        }
+
+        private IObservable<float> TouchEndAdObservable()
+        {
+            return this.UpdateAsObservable()
+                .Select(_ => Time.deltaTime)
+                .Scan((acc, current) => acc += current)
+                .TakeWhile(_ => touch.info != TouchInfo.Ended)
+                .TakeLast(1);
         }
             
     }
