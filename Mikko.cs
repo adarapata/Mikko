@@ -13,9 +13,11 @@ namespace GuP {
                 {
                     instance = FindObjectOfType<Mikko>();
                     if(instance == null) {
+                        var config = Resources.Load("MikkoConfig") as MikkoConfig;
                         var obj = new GameObject("Mikko",typeof(Mikko));
                         DontDestroyOnLoad(obj);
                         instance = obj.GetComponent<Mikko>();
+                        instance.config = config;
                     }
                 }
                 return instance;
@@ -27,6 +29,8 @@ namespace GuP {
 
         private Subject<ITouch> onTapStream = new Subject<ITouch>();
         public IObservable<ITouch> onTapAsObservable { get { return onTapStream.AsObservable(); } }
+
+        public MikkoConfig config;
 
         public ITouch touch {
             get {
@@ -53,7 +57,7 @@ namespace GuP {
                 .Where(_ => touch.info == TouchInfo.Began)
                 .Subscribe(_ => {
                     TouchEndAdObservable()
-                        .Where(t => t < 0.5F)
+                        .Where(t => t < config.tapInterval)
                         .Subscribe(t => {
                             onTapStream.OnNext(touch);
                         });              
