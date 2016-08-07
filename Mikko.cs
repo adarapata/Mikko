@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace GuP {
     public partial class Mikko : MonoBehaviour {
+        public const string VERSION = "0.2.1";
+
         private static Mikko instance;
         public static Mikko input {
             get {
