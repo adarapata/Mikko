@@ -25,6 +25,9 @@ namespace GuP {
         private Vector2 deltaPosition;
         #endif
 
+        private Subject<ITouch> onTapStream = new Subject<ITouch>();
+        public IObservable<ITouch> onTapAsObservable { get { return onTapStream.AsObservable(); } }
+
         public ITouch touch {
             get {
                 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -45,6 +48,26 @@ namespace GuP {
                 .Select(mousePosition => mousePosition.Last() - mousePosition.First())
                 .Subscribe(pos => deltaPosition = pos);
             #endif
+
+            this.UpdateAsObservable()
+                .Where(_ => touch.info == TouchInfo.Began)
+                .Subscribe(_ => {
+                    TouchEndAdObservable()
+                        .Where(t => t < 0.5F)
+                        .Subscribe(t => {
+                            onTapStream.OnNext(touch);
+                        });              
+                });
+
+        }
+
+        private IObservable<float> TouchEndAdObservable()
+        {
+            return this.UpdateAsObservable()
+                .Select(_ => Time.deltaTime)
+                .Scan((acc, current) => acc += current)
+                .TakeWhile(_ => touch.info != TouchInfo.Ended)
+                .TakeLast(1);
         }
             
     }
