@@ -2,7 +2,6 @@
   "Title" : "Mikko",
   "Author" : "adarapata",
   "License" : "MIT",
-  "RequiresFullReimport" : false,
   "Dependencies" : {
      "adarapata/Mikko" : "master"
   }
